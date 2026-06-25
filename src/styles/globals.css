@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+}
+
+@layer components {
+  .card {
+    @apply border-2 border-green-500 rounded-sm;
+  }
+
+  .btn {
+    @apply bg-green-500 hover:bg-green-400 text-black font-semibold py-2 px-4 rounded-sm transition-all duration-200;
+  }
+
+  .stats {
+    @apply bg-black border-2 border-green-500 rounded-sm p-4;
+  }
+
+  .timer {
+    @apply text-green-500 font-mono;
+  }
+}

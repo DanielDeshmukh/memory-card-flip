@@ -7,11 +7,8 @@ interface CelebrationProps {
 }
 
 const Celebration: React.FC<CelebrationProps> = ({ isOpen, onClose }) => {
-  // Confetti particles
   const confettiCount = 50;
-  const confettiColors = [
-    '#3b82f6', '#60a5fa', '#1e40af', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6', '#ec4899'
-  ];
+  const confettiColors = ['#76b900', '#5a8d00', '#ffffff', '#f7f7f7'];
 
   const confettiVariants = {
     initial: { y: -100, x: Math.random() * 100 },
@@ -50,7 +47,7 @@ const Celebration: React.FC<CelebrationProps> = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-purple-600 via-blue-500 to-indigo-700"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -60,7 +57,7 @@ const Celebration: React.FC<CelebrationProps> = ({ isOpen, onClose }) => {
         {Array.from({ length: confettiCount }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 rounded-full"
+            className="absolute w-2 h-2"
             style={{
               backgroundColor: confettiColors[Math.floor(Math.random() * confettiColors.length)],
               left: `${Math.random() * 100}%`,
@@ -75,17 +72,17 @@ const Celebration: React.FC<CelebrationProps> = ({ isOpen, onClose }) => {
 
         {/* Celebration Text */}
         <motion.div
-          className="text-center text-white p-8 rounded-3xl bg-white bg-opacity-10 backdrop-blur-md shadow-2xl"
+          className="text-center text-white p-8 rounded-sm bg-black border-2 border-[#76b900] shadow-[0_0_20px_rgba(118,185,0,0.5)]"
           variants={bounceVariants}
           initial="initial"
           animate="animate"
           exit="exit"
         >
-          <h1 className="text-6xl font-bold mb-4 animate-bounce">🎉 Congratulations! 🎉</h1>
+          <h1 className="text-6xl font-bold mb-4 text-[#76b900]">🎉 CONGRATULATIONS! 🎉</h1>
           <p className="text-2xl font-semibold mb-6">You matched all pairs!</p>
           <button
             onClick={onClose}
-            className="px-8 py-3 bg-white text-indigo-700 font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            className="px-8 py-3 bg-[#76b900] text-black font-bold rounded-sm shadow-lg hover:bg-[#5a8d00] transform hover:scale-105 transition-all duration-200"
           >
             Play Again
           </button>

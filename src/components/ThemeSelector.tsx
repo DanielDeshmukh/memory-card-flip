@@ -1,42 +1,34 @@
 import React from 'react';
+import { useGameStore } from '../store/gameStore';
+import { THEMES } from '../data/themes';
 
-interface ThemeSelectorProps {
-  selectedTheme: string;
-  onSelectTheme: (theme: string) => void;
-}
-
-const ThemeSelector: React.FC<ThemeSelectorProps> = ({ selectedTheme, onSelectTheme }) => {
-  const themes = [
-    { id: 'animals', name: 'Animals', preview: ['🦁', '🐘', '🐼', '🦊'] },
-    { id: 'flags', name: 'Flags', preview: ['🇺🇸', '🇯🇵', '🇧🇷', '🇩🇪'] },
-    { id: 'emojis', name: 'Emojis', preview: ['🍎', '🍕', '🎮', '🌈'] }
-  ];
+const ThemeSelector: React.FC = () => {
+  const { theme, setTheme } = useGameStore();
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-slate-50 rounded-2xl shadow-lg border border-slate-200">
-      <h3 className="text-lg font-bold text-slate-800 text-center">Choose a Theme</h3>
+    <div className="flex flex-col gap-6 p-6 bg-black border border-[#76b900] rounded-sm shadow-lg">
+      <h3 className="text-lg font-bold text-[#76b900] text-center">CHOOSE A THEME</h3>
       
       <div className="grid grid-cols-3 gap-4">
-        {themes.map((theme) => (
+        {THEMES.map((themeOption) => (
           <button
-            key={theme.id}
-            onClick={() => onSelectTheme(theme.id)}
-            className={`relative flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl border-2 cursor-pointer
-              ${selectedTheme === theme.id
-                ? 'border-blue-500 bg-blue-50 shadow-md'
-                : 'border-slate-200 bg-white hover:border-slate-300'
-              }`
-            }
+            key={themeOption.id}
+            onClick={() => setTheme(themeOption.id)}
+            className={`relative flex flex-col items-center justify-center p-4 rounded-sm transition-all duration-300 transform hover:scale-105 hover:shadow-xl border-2 cursor-pointer
+              ${theme.id === themeOption.id
+                ? 'border-[#76b900] bg-[#1a1a1a] shadow-md'
+                : 'border-[#76b900] bg-black hover:bg-[#1a1a1a]'
+              }`}
           >
             <div className="flex gap-1 mb-2">
-              {theme.preview.map((icon, index) => (
+              {themeOption.items.slice(0, 4).map((icon, index) => (
                 <span key={index} className="text-2xl">{icon}</span>
               ))}
             </div>
-            <span className="text-sm font-medium text-slate-700">{theme.name}</span>
+            <span className="text-sm font-medium text-white">{themeOption.name}</span>
             
-            {selectedTheme === theme.id && (
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            {theme.id === themeOption.id && (
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#76b900] text-black rounded-sm flex items-center justify-center text-xs font-bold">
                 ✓
               </div>
             )}

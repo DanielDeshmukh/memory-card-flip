@@ -10,13 +10,13 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ matchedPairs, totalPairs }) =
 
   return (
     <div className="w-full max-w-md mx-auto mb-6">
-      <div className="flex justify-between text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-        <span>Matched</span>
-        <span>{matchedPairs} / {totalPairs} pairs</span>
+      <div className="flex justify-between text-sm font-medium text-[#76b900] mb-2">
+        <span>PROGRESS</span>
+        <span>{matchedPairs} / {totalPairs} PAIRS</span>
       </div>
-      <div className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+      <div className="w-full h-3 bg-[#1a1a1a] border border-[#76b900] rounded-sm overflow-hidden">
         <div 
-          className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500 ease-out"
+          className="h-full bg-[#76b900] transition-all duration-500 ease-out"
           style={{ width: `${percentage}%` }}
         ></div>
       </div>

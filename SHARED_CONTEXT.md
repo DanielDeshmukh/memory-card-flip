@@ -1,25 +1,13 @@
-Project: Build a Memory Card Flip game with React 18, Zustand, Framer Motion, and Tailwind CSS. Features: Card flip animation with 3D transforms (perspective, rotateY), multiple themes (animals, flags, emojis) with dynamic card generation, move counter and timer display, best score leaderboard (localStorage), difficulty levels (4x4, 6x6, 8x8 grids), shuffle algorithm (Fisher-Yates) on each game start, flip state machine (idle -> flipping -> matched/hidden), progress bar showing matched pairs, celebration animation on completion, card preview on first 2 moves (beginner-friendly mode). Use a colorful, playful design.
+Project: Fix the Memory Card Flip game at D:\projects\memory-card-flip. The project builds but has critical bugs: 1) Timer shows NaN:NaN - the timeElapsed state is undefined, gameStore uses 'timer' but StatsBar reads 'timeElapsed' 2) No card grid renders - GameGrid component likely broken 3) No Tailwind CSS styling applies - postcss.config.js was missing (now added), but vite.config.ts may need PostCSS plugin 4) Matched count shows 'Matched / pairs' with no numbers 5) The project must use the NVIDIA dark theme from DESIGN.md in this project root - black canvas (#000000), NVIDIA green (#76b900) accent, angular 2px radius, no gradients. Read DESIGN.md first. Fix ALL bugs and apply NVIDIA theme. Make it actually work and look polished.
 
 Files being built:
-1. index.html, src/main.tsx, vite.config.ts, tsconfig.json
-2. package.json, vite.config.js
-3. tailwind.config.js, src/index.css
-4. src/store/gameStore.ts
-5. src/utils/shuffle.ts
-6. src/data/themes.ts
-7. src/components/Card.tsx, src/components/Card.css
-8. src/components/GameGrid.tsx
-9. src/components/StatsBar.tsx
-10. src/components/ProgressBar.tsx
-11. src/utils/leaderboard.ts
-12. src/components/ThemeSelector.tsx
-13. src/components/DifficultySelector.tsx
-14. src/hooks/useCardPreview.ts
-15. src/components/Celebration.tsx
-16. src/hooks/useFlipState.ts
-17. src/App.tsx, src/App.css
-18. src/utils/shuffle.test.ts, src/hooks/useFlipState.test.ts
-19. src/config/gameConfig.ts
+1. index.html, package.json, src/main.tsx, src/index.css, tsconfig.json
+2. src/store/gameStore.ts, src/components/StatsBar.tsx
+3. src/components/GameGrid.tsx, src/components/Card.tsx
+4. vite.config.ts
+5. src/styles/globals.css, src/components/App.tsx
+6. src/store/gameStore.test.ts
+7. src/types/index.ts, src/constants/index.ts
 
 TYPE CONTRACTS (ALL workers must use these exact types):
 --- src/types/Todo.ts ---

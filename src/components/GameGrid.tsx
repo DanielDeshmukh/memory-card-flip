@@ -1,26 +1,36 @@
 import React from 'react';
-import { useGameStore } from '../store/gameStore';
 import Card from './Card';
-import { getGridSize } from '../config/gameConfig';
+import { useGameStore } from '../store/gameStore';
+import { Card as CardType } from '../types';
 
 const GameGrid: React.FC = () => {
-  const { cards, flippedCards, matchedCards, handleCardClick } = useGameStore();
-  const gridSize = getGridSize();
+  const { cards, flipCard, difficulty, isPreviewEnabled } = useGameStore();
+
+  // Safety check for undefined cards
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-500">
+        Loading cards...
+      </div>
+    );
+  }
+
+  const gridCols = difficulty.cols;
 
   return (
-    <div className="grid gap-4 justify-items-center items-center p-6"
-         style={{
-           gridTemplateColumns: `repeat(${gridSize}, 1fr)`
-         }}>
-      {cards.map((card, index) => (
+    <div 
+      className="grid gap-4 mt-8 max-w-4xl mx-auto" 
+      style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
+    >
+      {cards.map((card: CardType) => (
         <Card
-          key={index}
-          id={index}
-          front={card.front}
-          back={card.back}
-          isFlipped={flippedCards.includes(index)}
-          isMatched={matchedCards.includes(index)}
-          onClick={() => handleCardClick(index)}
+          key={card.id}
+          id={card.id}
+          value={card.value}
+          isFlipped={card.isFlipped}
+          isMatched={card.isMatched}
+          onClick={() => flipCard(card.id)}
+          isPreviewEnabled={isPreviewEnabled}
         />
       ))}
     </div>

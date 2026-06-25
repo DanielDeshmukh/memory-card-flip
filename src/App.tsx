@@ -1,20 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ThemeSelector from './components/ThemeSelector';
 import DifficultySelector from './components/DifficultySelector';
 import GameGrid from './components/GameGrid';
 import StatsBar from './components/StatsBar';
 import ProgressBar from './components/ProgressBar';
 import Celebration from './components/Celebration';
+import { useGameStore } from './store/gameStore';
 import './App.css';
 
 const App: React.FC = () => {
+  const { initializeGame, cards, timeElapsed, isPlaying, tickTimer, stopTimer } = useGameStore();
+
+  // Initialize game on mount
+  useEffect(() => {
+    initializeGame();
+  }, [initializeGame]);
+
+  // Timer Logic
+  useEffect(() => {
+    let interval: number | undefined;
+    if (isPlaying && !cards.every(c => c.isMatched)) {
+      interval = window.setInterval(() => {
+        tickTimer();
+      }, 1000);
+    } else {
+      stopTimer();
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, cards, tickTimer, stopTimer]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 text-white p-4">
+    <div className="min-h-screen bg-black text-white p-4 font-sans">
       <header className="text-center mb-6">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
-          Memory Card Flip
+        <h1 className="text-4xl font-bold text-[#76b900] mb-2">
+          MEMORY CARD FLIP
         </h1>
-        <p className="text-slate-300">Match pairs to win!</p>
+        <p className="text-gray-400">Match pairs to win!</p>
       </header>
 
       <main className="max-w-6xl mx-auto">
@@ -31,7 +52,7 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      <footer className="mt-12 text-center text-slate-400">
+      <footer className="mt-12 text-center text-gray-500">
         <p>Challenge yourself with different themes and difficulty levels!</p>
       </footer>
 

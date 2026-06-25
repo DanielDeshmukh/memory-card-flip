@@ -1,231 +1,199 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { Theme, Difficulty } from '../data/themes';
-import { getBestScores, setBestScores } from '../utils/leaderboard';
+import { Card, GameState, DifficultyConfig, ThemeConfig } from '../types';
+import { THEMES } from '../data/themes';
+import { DIFFICULTY_CONFIGS } from '../constants';
 
-export interface GameCard {
-  id: string;
-  front: string;
-  back: string;
-  isFlipped: boolean;
-  isMatched: boolean;
-}
-
-export interface GameState {
-  cards: GameCard[];
-  moves: number;
-  timer: number;
-  isPlaying: boolean;
-  difficulty: Difficulty;
-  theme: Theme;
-  bestScores: Record<string, number>;
-  isPreviewEnabled: boolean;
-  isCelebrationOpen: boolean;
-}
-
-export interface GameActions {
-  startGame: () => void;
+interface GameStore extends GameState {
+  // Actions
+  initializeGame: () => void;
   flipCard: (id: string) => void;
-  matchCards: (id1: string, id2: string) => void;
-  hideCards: () => void;
-  incrementMoves: () => void;
+  resetGame: () => void;
+  setDifficulty: (difficulty: DifficultyConfig) => void;
+  setTheme: (themeId: string) => void;
+  togglePreview: () => void;
+  closeCelebration: () => void;
+  // Timer specific actions
   startTimer: () => void;
   stopTimer: () => void;
-  setDifficulty: (difficulty: Difficulty) => void;
-  setTheme: (theme: Theme) => void;
-  openCelebration: () => void;
-  closeCelebration: () => void;
-  enablePreview: () => void;
-  disablePreview: () => void;
+  tickTimer: () => void;
+  incrementMoves: () => void;
 }
 
-export type GameStore = GameState & GameActions;
+const generateCards = (count: number, themeItems: string[]): Card[] => {
+  const selected = themeItems.slice(0, count / 2);
+  const doubled = [...selected, ...selected];
+  
+  // Shuffle
+  for (let i = doubled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [doubled[i], doubled[j]] = [doubled[j], doubled[i]];
+  }
 
-export const useGameStore = create<GameStore>()(
-  persist(
-    (set, get) => ({
-      cards: [],
-      moves: 0,
-      timer: 0,
-      isPlaying: false,
-      difficulty: { label: 'Easy', rows: 4, cols: 4 },
-      theme: { id: 'animals', name: 'Animals', cards: [] },
-      bestScores: getBestScores(),
-      isPreviewEnabled: true,
-      isCelebrationOpen: false,
+  return doubled.map((value, index) => ({
+    id: `card-${index}`,
+    value,
+    isFlipped: false,
+    isMatched: false,
+  }));
+};
 
-      startGame: () => {
-        const { difficulty, theme } = get();
-        const totalPairs = (difficulty.rows * difficulty.cols) / 2;
-        const cardData = theme.cards.slice(0, totalPairs);
-        
-        // Create pairs of cards
-        const cards = cardData.flatMap(card => [
-          { id: `${card.id}-1`, front: card.front, back: card.back, isFlipped: false, isMatched: false },
-          { id: `${card.id}-2`, front: card.front, back: card.back, isFlipped: false, isMatched: false }
-        ]);
-        
-        // Shuffle cards using Fisher-Yates algorithm
-        for (let i = cards.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [cards[i], cards[j]] = [cards[j], cards[i]];
-        }
-        
-        set({
-          cards,
-          moves: 0,
-          timer: 0,
-          isPlaying: true,
-          isCelebrationOpen: false
-        });
-        
-        // Start timer
-        setTimeout(() => {
-          if (get().isPlaying) {
-            set({ timer: 1 });
-            const interval = setInterval(() => {
-              set(state => ({ timer: state.timer + 1 }));
-            }, 1000);
-            
-            // Store interval ID in state for cleanup
-            // Note: Zustand doesn't natively support storing intervals, so we'll handle cleanup in component
-          }
-        }, 100);
-      },
+export const useGameStore = create<GameStore>((set, get) => {
+  const defaultDifficulty: DifficultyConfig = DIFFICULTY_CONFIGS.easy;
+  const defaultTheme = THEMES[0];
 
-      flipCard: (id: string) => {
-        const { cards, isPlaying } = get();
-        if (!isPlaying) return;
-        
-        const cardIndex = cards.findIndex(card => card.id === id);
-        if (cardIndex === -1 || cards[cardIndex].isFlipped || cards[cardIndex].isMatched) return;
-        
-        // Create a copy of cards
-        const newCards = [...cards];
-        newCards[cardIndex].isFlipped = true;
-        
-        // Check if we have two flipped cards
-        const flippedCards = newCards.filter(card => card.isFlipped && !card.isMatched);
-        
-        if (flippedCards.length === 2) {
-          // Check for match
-          const [first, second] = flippedCards;
-          if (first.front === second.front) {
-            // Match found
-            set({ cards: newCards });
-            setTimeout(() => {
-              const updatedCards = newCards.map(card =>
-                card.id === first.id || card.id === second.id
-                  ? { ...card, isMatched: true }
-                  : card
-              );
-              set({ cards: updatedCards });
-              
-              // Check if all cards are matched
-              const allMatched = updatedCards.every(card => card.isMatched);
-              if (allMatched) {
-                get().stopTimer();
-                get().openCelebration();
-                
-                // Update best score
-                const { difficulty, moves, timer, bestScores } = get();
-                const difficultyKey = `${difficulty.rows}x${difficulty.cols}-${difficulty.label.toLowerCase()}`;
-                const currentBest = bestScores[difficultyKey] || Infinity;
-                if (moves < currentBest) {
-                  const newBestScores = { ...bestScores, [difficultyKey]: moves };
-                  set({ bestScores: newBestScores });
-                  setBestScores(newBestScores);
-                }
-              }
-            }, 500);
-          } else {
-            // No match, hide after delay
-            set({ cards: newCards });
-            setTimeout(() => {
-              const hiddenCards = newCards.map(card =>
-                card.isFlipped && !card.isMatched ? { ...card, isFlipped: false } : card
-              );
-              set({ cards: hiddenCards });
-            }, 1000);
+  return {
+    // Initial State
+    cards: [],
+    difficulty: defaultDifficulty,
+    theme: defaultTheme,
+    timeElapsed: 0,
+    moves: 0,
+    matchedPairs: 0,
+    totalPairs: 0,
+    isPlaying: false,
+    isGameOver: false,
+    isPreviewEnabled: true,
+    isCelebrationOpen: false,
+    bestScores: {},
+
+    initializeGame: () => {
+      const { difficulty, theme } = get();
+      const cards = generateCards(difficulty.pairs * 2, theme.items);
+      set({
+        cards,
+        timeElapsed: 0,
+        moves: 0,
+        matchedPairs: 0,
+        totalPairs: difficulty.pairs,
+        isPlaying: false,
+        isGameOver: false,
+        isCelebrationOpen: false,
+      });
+    },
+
+    flipCard: (id) => {
+      const { cards, isPlaying, isGameOver, moves, matchedPairs, totalPairs, theme } = get();
+      
+      if (!isPlaying && cards.length === 0) {
+        // Start game on first flip if not initialized
+        set({ isPlaying: true });
+      }
+      
+      if (!isPlaying || isGameOver) return;
+      
+      const cardIndex = cards.findIndex((c) => c.id === id);
+      if (cardIndex === -1) return;
+      
+      const card = cards[cardIndex];
+      if (card.isFlipped || card.isMatched) return;
+
+      const newCards = [...cards];
+      newCards[cardIndex] = { ...card, isFlipped: true };
+
+      set({ cards: newCards, moves: moves + 1 });
+
+      const flippedCards = newCards.filter(c => c.isFlipped && !c.isMatched);
+
+      if (flippedCards.length === 2) {
+        const [first, second] = flippedCards;
+        if (first.value === second.value) {
+          // Match found
+          const matchedCards = newCards.map((c) =>
+            c.id === first.id || c.id === second.id ? { ...c, isMatched: true } : c
+          );
+          const newMatchedPairs = matchedPairs + 1;
+          
+          set({
+            cards: matchedCards,
+            matchedPairs: newMatchedPairs,
+          });
+
+          if (newMatchedPairs === totalPairs) {
+            set({ isGameOver: true, isCelebrationOpen: true });
           }
         } else {
-          // Only one card flipped, update state
-          set({ cards: newCards });
+          // No match - wait then unflip
+          setTimeout(() => {
+            const { cards: currentCards } = get();
+            const resetCards = currentCards.map((c) =>
+              c.id === first.id || c.id === second.id ? { ...c, isFlipped: false } : c
+            );
+            set({ cards: resetCards });
+          }, 1000);
         }
-      },
+      }
+    },
 
-      matchCards: (id1: string, id2: string) => {
-        const { cards } = get();
-        const newCards = cards.map(card =>
-          card.id === id1 || card.id === id2
-            ? { ...card, isMatched: true }
-            : card
-        );
-        set({ cards: newCards });
-      },
+    resetGame: () => {
+      const { difficulty, theme } = get();
+      const cards = generateCards(difficulty.pairs * 2, theme.items);
+      set({
+        cards,
+        timeElapsed: 0,
+        moves: 0,
+        matchedPairs: 0,
+        totalPairs: difficulty.pairs,
+        isPlaying: false,
+        isGameOver: false,
+        isCelebrationOpen: false,
+      });
+    },
 
-      hideCards: () => {
-        const { cards } = get();
-        const hiddenCards = cards.map(card =>
-          card.isFlipped && !card.isMatched ? { ...card, isFlipped: false } : card
-        );
-        set({ cards: hiddenCards });
-      },
+    setDifficulty: (difficulty) => {
+      set({ difficulty });
+      // Re-initialize game with new difficulty
+      const { theme } = get();
+      const cards = generateCards(difficulty.pairs * 2, theme.items);
+      set({
+        cards,
+        timeElapsed: 0,
+        moves: 0,
+        matchedPairs: 0,
+        totalPairs: difficulty.pairs,
+        isPlaying: false,
+        isGameOver: false,
+        isCelebrationOpen: false,
+      });
+    },
 
-      incrementMoves: () => {
-        set(state => ({ moves: state.moves + 1 }));
-      },
+    setTheme: (themeId) => {
+      const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
+      const { difficulty } = get();
+      const cards = generateCards(difficulty.pairs * 2, theme.items);
+      set({
+        theme,
+        cards,
+        timeElapsed: 0,
+        moves: 0,
+        matchedPairs: 0,
+        isPlaying: false,
+        isGameOver: false,
+        isCelebrationOpen: false,
+      });
+    },
 
-      startTimer: () => {
-        set({ isPlaying: true });
-        const interval = setInterval(() => {
-          set(state => ({ timer: state.timer + 1 }));
-        }, 1000);
-        
-        // Store interval ID for cleanup
-        // Note: Zustand doesn't natively support storing intervals, so we'll handle cleanup in component
-      },
+    togglePreview: () => {
+      set((state) => ({ isPreviewEnabled: !state.isPreviewEnabled }));
+    },
 
-      stopTimer: () => {
-        set({ isPlaying: false });
-      },
+    closeCelebration: () => {
+      set({ isCelebrationOpen: false });
+    },
 
-      setDifficulty: (difficulty: Difficulty) => {
-        set({ difficulty });
-        // Reset game when difficulty changes
-        get().startGame();
-      },
+    startTimer: () => {
+      // Logic handled by component interval, but we ensure state is ready
+    },
 
-      setTheme: (theme: Theme) => {
-        set({ theme });
-        // Reset game when theme changes
-        get().startGame();
-      },
+    stopTimer: () => {
+      // Logic handled by component
+    },
 
-      openCelebration: () => {
-        set({ isCelebrationOpen: true });
-      },
+    tickTimer: () => {
+      set((state) => ({ timeElapsed: state.timeElapsed + 1 }));
+    },
 
-      closeCelebration: () => {
-        set({ isCelebrationOpen: false });
-      },
-
-      enablePreview: () => {
-        set({ isPreviewEnabled: true });
-      },
-
-      disablePreview: () => {
-        set({ isPreviewEnabled: false });
-      },
-    }),
-    {
-      name: 'memory-game-storage',
-      partialize: (state) => ({
-        bestScores: state.bestScores,
-        difficulty: state.difficulty,
-        theme: state.theme,
-        isPreviewEnabled: state.isPreviewEnabled
-      })
+    incrementMoves: () => {
+      set((state) => ({ moves: state.moves + 1 }));
     }
-  )
-);
+  };
+});
