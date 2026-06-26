@@ -20,7 +20,14 @@ interface GameStore extends GameState {
 }
 
 const generateCards = (count: number, themeItems: string[]): Card[] => {
-  const selected = themeItems.slice(0, count / 2);
+  const pairsNeeded = count / 2;
+  const selected: string[] = [];
+  
+  // Cycle through theme items if we need more unique items than available
+  for (let i = 0; i < pairsNeeded; i++) {
+    selected.push(themeItems[i % themeItems.length]);
+  }
+  
   const doubled = [...selected, ...selected];
   
   // Shuffle

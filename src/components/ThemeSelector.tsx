@@ -8,7 +8,6 @@ const ThemeSelector: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 p-6 bg-black border border-[#76b900] rounded-sm shadow-lg">
       <h3 className="text-lg font-bold text-[#76b900] text-center">CHOOSE A THEME</h3>
-      
       <div className="grid grid-cols-3 gap-4">
         {THEMES.map((themeOption) => (
           <button
@@ -26,11 +25,8 @@ const ThemeSelector: React.FC = () => {
               ))}
             </div>
             <span className="text-sm font-medium text-white">{themeOption.name}</span>
-            
             {theme.id === themeOption.id && (
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#76b900] text-black rounded-sm flex items-center justify-center text-xs font-bold">
-                ✓
-              </div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#76b900] text-black rounded-sm flex items-center justify-center text-xs font-bold">✓</div>
             )}
           </button>
         ))}
