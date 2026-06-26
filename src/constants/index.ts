@@ -13,7 +13,7 @@ export const GAME_COLORS = {
   accent: '#76b900',
   text: '#ffffff',
   cardBack: '#1a1a1a',
-  cardFront: '#0f0f0f',
+  cardFront: '#000000',
   border: '#76b900',
 };
 

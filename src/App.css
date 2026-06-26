@@ -11,108 +11,26 @@
   }
 }
 
-@layer components {
-  .card-container {
-    perspective: 1000px;
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(360deg);
   }
-  
-  .card {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-  }
-  
-  .card.flipping {
-    transform: rotateY(180deg);
-  }
-  
-  .card-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: 700;
-    box-shadow: 0 0 0 1px #76b900;
-  }
-  
-  .card-front {
-    background: #ffffff;
-    color: #000000;
-  }
-  
-  .card-back {
-    background: #1a1a1a;
-    color: #76b900;
-    transform: rotateY(180deg);
-  }
-  
-  .btn {
-    @apply px-4 py-2 rounded-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105;
-  }
-  
-  .btn-primary {
-    @apply bg-[#76b900] text-black hover:bg-[#5a8d00];
-  }
-  
-  .btn-secondary {
-    @apply bg-[#1a1a1a] text-white hover:bg-[#2a2a2a];
-  }
-  
-  .progress-bar {
-    height: 8px;
-    background-color: #1a1a1a;
-    border-radius: 2px;
-    overflow: hidden;
-    border: 1px solid #76b900;
-  }
-  
-  .progress-fill {
-    height: 100%;
-    background: #76b900;
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
-  
-  .celebration {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.7);
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-  
-  .celebration.active {
-    opacity: 1;
-  }
-  
-  .confetti {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #76b900;
-    animation: fall linear forwards;
-  }
-  
-  @keyframes fall {
-    to {
-      transform: translateY(100vh) rotate(360deg);
-    }
-  }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.animate-fall {
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.animate-bounce-in {
+  animation-name: bounce-in;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
 }

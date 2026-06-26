@@ -9,14 +9,14 @@ import { useGameStore } from './store/gameStore';
 import './App.css';
 
 const App: React.FC = () => {
-  const { initializeGame, cards, timeElapsed, isPlaying, tickTimer, stopTimer } = useGameStore();
+  const { initializeGame, cards, timeElapsed, isPlaying, tickTimer, stopTimer, matchedPairs, totalPairs } = useGameStore();
 
-  // Initialize game on mount
+  // FIX 1: Call initializeGame on mount
   useEffect(() => {
     initializeGame();
   }, [initializeGame]);
 
-  // Timer Logic
+  // FIX 3: Timer starts on first card flip (when isPlaying becomes true)
   useEffect(() => {
     let interval: number | undefined;
     if (isPlaying && !cards.every(c => c.isMatched)) {
@@ -45,7 +45,7 @@ const App: React.FC = () => {
         </div>
 
         <StatsBar />
-        <ProgressBar />
+        <ProgressBar matchedPairs={matchedPairs} totalPairs={totalPairs} />
         
         <div className="flex justify-center mt-6">
           <GameGrid />

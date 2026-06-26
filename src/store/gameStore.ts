@@ -74,11 +74,12 @@ export const useGameStore = create<GameStore>((set, get) => {
     flipCard: (id) => {
       const { cards, isPlaying, isGameOver, moves, matchedPairs, totalPairs, theme } = get();
       
-      if (!isPlaying && cards.length === 0) {
-        // Start game on first flip if not initialized
+      // FIX: Start game state on first click if cards exist
+      if (!isPlaying && cards.length > 0) {
         set({ isPlaying: true });
       }
       
+      // If not playing (and cards empty) or game over, do nothing
       if (!isPlaying || isGameOver) return;
       
       const cardIndex = cards.findIndex((c) => c.id === id);
@@ -141,7 +142,6 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     setDifficulty: (difficulty) => {
       set({ difficulty });
-      // Re-initialize game with new difficulty
       const { theme } = get();
       const cards = generateCards(difficulty.pairs * 2, theme.items);
       set({
@@ -180,18 +180,11 @@ export const useGameStore = create<GameStore>((set, get) => {
       set({ isCelebrationOpen: false });
     },
 
-    startTimer: () => {
-      // Logic handled by component interval, but we ensure state is ready
-    },
-
-    stopTimer: () => {
-      // Logic handled by component
-    },
-
+    startTimer: () => {},
+    stopTimer: () => {},
     tickTimer: () => {
       set((state) => ({ timeElapsed: state.timeElapsed + 1 }));
     },
-
     incrementMoves: () => {
       set((state) => ({ moves: state.moves + 1 }));
     }

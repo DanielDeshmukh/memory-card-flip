@@ -6,7 +6,7 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ matchedPairs, totalPairs }) => {
-  const percentage = (matchedPairs / totalPairs) * 100;
+  const percentage = totalPairs > 0 ? (matchedPairs / totalPairs) * 100 : 0;
 
   return (
     <div className="w-full max-w-md mx-auto mb-6">

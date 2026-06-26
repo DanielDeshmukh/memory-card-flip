@@ -4,7 +4,7 @@ import { useGameStore } from '../store/gameStore';
 import { Card as CardType } from '../types';
 
 const GameGrid: React.FC = () => {
-  const { cards, flipCard, difficulty, isPreviewEnabled } = useGameStore();
+  const { cards, flipCard, difficulty } = useGameStore();
 
   // Safety check for undefined cards
   if (!cards || cards.length === 0) {
@@ -16,23 +16,32 @@ const GameGrid: React.FC = () => {
   }
 
   const gridCols = difficulty.cols;
+  // Calculate max width based on cols * 110px (approx 100px card + 10px gap)
+  const maxWidth = gridCols * 110;
 
   return (
     <div 
-      className="grid gap-4 mt-8 max-w-4xl mx-auto" 
-      style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
+      className="grid gap-2 mt-8 mx-auto" 
+      style={{ 
+        gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`,
+        maxWidth: `${maxWidth}px`,
+        perspective: '1000px'
+      }}
     >
-      {cards.map((card: CardType) => (
-        <Card
-          key={card.id}
-          id={card.id}
-          value={card.value}
-          isFlipped={card.isFlipped}
-          isMatched={card.isMatched}
-          onClick={() => flipCard(card.id)}
-          isPreviewEnabled={isPreviewEnabled}
-        />
-      ))}
+      {cards.map((card: CardType) => {
+        const isFlipped = card.isFlipped || card.isMatched;
+        return (
+          <div key={card.id} style={{ minHeight: '100px', minWidth: '100px' }}>
+            <Card
+              id={card.id}
+              value={card.value}
+              isFlipped={isFlipped}
+              isMatched={card.isMatched}
+              onClick={() => flipCard(card.id)}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };
